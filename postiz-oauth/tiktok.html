@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postiz TikTok OAuth Redirect</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            color: #ff6b6b;
+            margin-top: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h2>Redirecting to Postiz...</h2>
+        <p>Please wait while we redirect you back to your Postiz application.</p>
+        <div class="error" id="error">
+            <p>❌ Redirect failed. Please manually navigate to: <br>
+            <code>https://postiz.127.0.0.1.sslip.io</code></p>
+        </div>
+    </div>
+
+    <script>
+        // Get all URL parameters from TikTok OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const fragment = new URLSearchParams(window.location.hash.slice(1));
+        
+        // Combine query params and hash params
+        const allParams = new URLSearchParams();
+        for (const [key, value] of urlParams) {
+            allParams.append(key, value);
+        }
+        for (const [key, value] of fragment) {
+            allParams.append(key, value);
+        }
+        
+        // Target Postiz URL
+        const postizBaseUrl = 'https://postiz.127.0.0.1.sslip.io/integrations/social/tiktok';
+        const redirectUrl = allParams.toString() ? 
+            `${postizBaseUrl}?${allParams.toString()}` : 
+            postizBaseUrl;
+        
+        // Log for debugging
+        console.log('Original URL:', window.location.href);
+        console.log('Redirect URL:', redirectUrl);
+        console.log('Parameters:', Object.fromEntries(allParams));
+        
+        // Attempt redirect after a short delay
+        setTimeout(() => {
+            try {
+                window.location.href = redirectUrl;
+            } catch (error) {
+                console.error('Redirect failed:', error);
+                document.getElementById('error').style.display = 'block';
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        }, 2000);
+        
+        // Fallback: Show error after 10 seconds if redirect doesn't work
+        setTimeout(() => {
+            if (window.location.href.includes('habeshahood.com')) {
+                document.getElementById('error').style.display = 'block';
+                document.querySelector('.spinner').style.display = 'none';
+            }
+        }, 10000);
+    </script>
+</body>
+</html>
